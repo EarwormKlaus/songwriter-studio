@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Songwriter Ultra – Studio Tool</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#151923; --panel2:#0b0d12; --text:#e9eef7;
+    --muted:#9aa6b2; --accent:#46b0c7; --danger:#ff4b4b; --line:#273044;
+    --btn:#1e2535; --btn2:#24304a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial; background:var(--bg); color:var(--text);}
+  .top{
+    padding:14px 14px 10px;
+    background:linear-gradient(180deg,#162019 0%, #10141c 70%);
+    border-bottom:1px solid var(--line);
+  }
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;}
+  .meta{display:flex; gap:10px; flex:1; flex-wrap:wrap;}
+  input.metaIn{
+    background:rgba(0,0,0,.25);
+    border:1px solid rgba(255,255,255,.12);
+    color:var(--danger);
+    padding:10px 12px;
+    border-radius:10px;
+    outline:none;
+    min-width:220px;
+    flex:1;
+    font-size:16px;
+  }
+  .title{font-size:20px; font-weight:700;}
+  .style{font-size:16px;}
+
+  .toolbar{
+    padding:10px 14px 10px;
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+  }
+  .toolbar2{
+    padding:0 14px 14px;
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center;
+    border-bottom:1px solid var(--line);
+  }
+
+  .group{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  button, label.btn{
+    background:var(--btn);
+    border:1px solid rgba(255,255,255,.10);
+    color:var(--text);
+    padding:9px 11px;
+    border-radius:10px;
+    font-size:13px;
+    cursor:pointer;
+    user-select:none;
+  }
+  button:hover, label.btn:hover{background:var(--btn2)}
+  button.primary{background:rgba(70,176,199,.18); border-color:rgba(70,176,199,.35)}
+  button.danger{background:rgba(255,75,75,.16); border-color:rgba(255,75,75,.35)}
+  button:active{transform:translateY(1px)}
+  label.chk{
+    display:flex; align-items:center; gap:6px;
+    padding:7px 10px;
+    border-radius:10px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+    color:var(--muted);
+    font-size:12px;
+    user-select:none;
+  }
+  label.chk input{accent-color: var(--accent);}
+
+  .layout{
+    padding:14px;
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:0 10px 28px rgba(0,0,0,.25);
+    flex:1 1 520px;
+    min-width:320px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .panel h3{
+    margin:0;
+    padding:12px 14px;
+    font-size:14px;
+    letter-spacing:.2px;
+    color:var(--muted);
+    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.00));
+    border-bottom:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .hint{font-size:12px; color:rgba(154,166,178,.9)}
+  textarea{
+    width:100%;
+    min-height:62vh;
+    background:var(--panel2);
+    border:0;
+    padding:14px;
+    color:var(--text);
+    font-size:16px;
+    line-height:1.55;
+    outline:none;
+    resize:vertical;
+  }
+  .status{
+    padding:10px 14px;
+    color:var(--muted);
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    font-size:12px;
+  }
+  .pill{padding:3px 8px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08)}
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%);
+    background:rgba(20,25,35,.95);
+    border:1px solid rgba(255,255,255,.12);
+    padding:10px 12px;
+    border-radius:12px;
+    color:var(--text);
+    font-size:13px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+    max-width:min(92vw,780px);
+  }
+  .toast.show{opacity:1}
+  input[type="file"]{display:none}
+</style>
+</head>
+
+<body>
+  <div class="top">
+    <div class="row meta">
+      <input id="songTitle" class="metaIn title" placeholder="Songtitel" />
+      <input id="songStyle" class="metaIn style" placeholder="Stil (z.B. sunshine pop, jazz-influenced)" />
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="group">
+      <button id="btnSave" class="primary" title="Safari lädt in Downloads. Mit Teilen kannst du 'In Dateien sichern'.">💾 Speichern</button>
+      <button id="btnShare" title="iPad/macOS: In Dateien sichern (wenn verfügbar)">📤 Teilen</button>
+    </div>
+
+    <div class="group" aria-label="Struktur">
+      <button data-tag="Intro">Intro</button>
+      <button data-tag="Verse">Verse</button>
+      <button data-tag="Pre-Chorus">Pre</button>
+      <button data-tag="Chorus">Chorus</button>
+      <button data-tag="Refrain">Ref</button>
+      <button data-tag="Hook">Hook</button>
+      <button data-tag="Bridge">Bridge</button>
+      <button data-tag="Instrumental">Inst</button>
+      <button data-tag="Outro">Outro</button>
+    </div>
+
+    <div class="group">
+      <button id="btnDuplicate" class="danger" title="Wenn du Text markierst: nur Markierung. Sonst: nur angehakte Teile.">🎹 Auto-Duplizieren</button>
+      <button id="btnCopy" title="Kopiert rechts in die Zwischenablage (Suno).">📋 Suno Copy</button>
+      <label class="btn" for="fileLoad">📂 Laden</label>
+      <input id="fileLoad" type="file" accept=".songwriter,application/json" />
+    </div>
+  </div>
+
+  <!-- Selektives Duplizieren -->
+  <div class="toolbar2">
+    <div class="group" aria-label="Selektives Duplizieren">
+      <span class="hint">Auto-Duplizieren nimmt:</span>
+      <label class="chk"><input type="checkbox" class="part" value="Intro" checked> Intro</label>
+      <label class="chk"><input type="checkbox" class="part" value="Verse" checked> Verse</label>
+      <label class="chk"><input type="checkbox" class="part" value="Pre-Chorus" checked> Pre</label>
+      <label class="chk"><input type="checkbox" class="part" value="Chorus" checked> Chorus</label>
+      <label class="chk"><input type="checkbox" class="part" value="Refrain" checked> Ref</label>
+      <label class="chk"><input type="checkbox" class="part" value="Hook" checked> Hook</label>
+      <label class="chk"><input type="checkbox" class="part" value="Bridge" checked> Bridge</label>
+      <label class="chk"><input type="checkbox" class="part" value="Instrumental" checked> Inst</label>
+      <label class="chk"><input type="checkbox" class="part" value="Outro" checked> Outro</label>
+    </div>
+  </div>
+
+  <div class="layout">
+    <section class="panel">
+      <h3>
+        <span>Links – Rohtext / Erste Idee</span>
+        <span class="hint">Tipp: markiere nur die besten Zeilen → Auto-Duplizieren</span>
+      </h3>
+      <textarea id="left" placeholder="Hier rein: Entwurf, Textfragmente, Varianten…"></textarea>
+      <div class="status">
+        <span class="pill" id="leftInfo">0 Zeichen</span>
+        <span class="pill" id="activeInfo">Aktiv: links</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>
+        <span>Rechts – Studio / Suno-Ready</span>
+        <span class="hint">Copy → Suno, fertig.</span>
+      </h3>
+      <textarea id="right" placeholder="Hier entsteht die saubere Version…"></textarea>
+      <div class="status">
+        <span class="pill" id="rightInfo">0 Zeichen</span>
+        <span class="pill">Format: [Chorus] etc.</span>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  const title = $("songTitle");
+  const style = $("songStyle");
+  const left  = $("left");
+  const right = $("right");
+
+  const btnSave = $("btnSave");
+  const btnShare = $("btnShare");
+  const btnDuplicate = $("btnDuplicate");
+  const btnCopy = $("btnCopy");
+  const fileLoad = $("fileLoad");
+
+  const leftInfo = $("leftInfo");
+  const rightInfo = $("rightInfo");
+  const activeInfo = $("activeInfo");
+  const toast = $("toast");
+
+  let active = left;
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1400);
+  }
+
+  function updateCounts(){
+    leftInfo.textContent = `${left.value.length} Zeichen`;
+    rightInfo.textContent = `${right.value.length} Zeichen`;
+  }
+
+  [left, right].forEach(t => {
+    t.addEventListener("focus", () => {
+      active = t;
+      activeInfo.textContent = `Aktiv: ${t === left ? "links" : "rechts"}`;
+    });
+    t.addEventListener("input", updateCounts);
+    t.addEventListener("click", () => {
+      active = t;
+      activeInfo.textContent = `Aktiv: ${t === left ? "links" : "rechts"}`;
+    });
+  });
+
+  // Struktur-Buttons: Marker in aktives Feld (links oder rechts)
+  document.querySelectorAll("[data-tag]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tag = btn.dataset.tag;
+      const t = active || left;
+      const pos = (typeof t.selectionStart === "number") ? t.selectionStart : t.value.length;
+      const before = t.value.slice(0, pos);
+      const after  = t.value.slice(pos);
+      const block = `\n[${tag}]\n`;
+      t.value = before + block + after;
+      t.focus();
+      updateCounts();
+    });
+  });
+
+  // Suno-Formatierung: kompatibel + ordentliche Marker
+  function sunoFormat(text){
+    if(!text) return "";
+    let t = text.replace(/\r\n/g, "\n");
+
+    const aliases = [
+      ["strophe","Verse"], ["verse","Verse"],
+      ["intro","Intro"],
+      ["pre-chorus","Pre-Chorus"], ["pre chorus","Pre-Chorus"],
+      ["chorus","Chorus"],
+      ["refrain","Refrain"],
+      ["hook","Hook"],
+      ["bridge","Bridge"],
+      ["instrumental","Instrumental"],
+      ["outro","Outro"]
+    ];
+
+    // Zeilen wie "Chorus:" / "Chorus -" → [Chorus]
+    const headerRegex = /^(\s*)([\wÄÖÜäöüß \-]+)\s*[:\-–—]\s*$/gm;
+    t = t.replace(headerRegex, (m, sp, raw) => {
+      const key = raw.trim().toLowerCase();
+      const found = aliases.find(([k]) => k === key);
+      const name = found ? found[1] : raw.trim();
+      return `${sp}[${name}]`;
+    });
+
+    // Vorhandene [tags] normieren
+    t = t.replace(/^\s*\[([^\]]+)\]\s*$/gm, (m, inside) => {
+      const key = inside.trim().toLowerCase();
+      const found = aliases.find(([k]) => k === key);
+      const name = found ? found[1] : inside.trim();
+      return `[${name}]`;
+    });
+
+    t = t.replace(/\n{3,}/g, "\n\n");
+    t = t.trim() + "\n";
+    return t;
+  }
+
+  // Aus Rohtext nur ausgewählte Teile extrahieren (nach [Tag]-Blöcken)
+  function extractSelectedParts(fullText, selectedSet){
+    const lines = fullText.replace(/\r\n/g, "\n").split("\n");
+    let out = [];
+    let currentTag = null;
+    let currentBlock = [];
+
+    function flush(){
+      if(!currentBlock.length) return;
+      if(currentTag && selectedSet.has(currentTag)){
+        out.push(currentBlock.join("\n").trimEnd());
+      }
+      currentBlock = [];
+    }
+
+    for(const line of lines){
+      const m = line.match(/^\s*\[([^\]]+)\]\s*$/);
+      if(m){
+        flush();
+        currentTag = m[1].trim();
+        currentBlock = [ `[${currentTag}]` ];
+      }else{
+        // Text vor erstem Tag: behandeln wir als "Verse" (optional)
+        if(!currentTag){
+          currentTag = "Verse";
+          currentBlock = [ `[${currentTag}]` ];
+        }
+        currentBlock.push(line);
+      }
+    }
+    flush();
+
+    const joined = out.join("\n\n").replace(/\n{3,}/g,"\n\n").trim() + "\n";
+    return joined === "\n" ? "" : joined;
+  }
+
+  // 🎹 Auto-Duplizieren – 3 Modi:
+  // 1) Markierung in links → nur Markierung
+  // 2) sonst Checkbox-Auswahl → nur diese Parts (nach Tags)
+  // 3) wenn daraus nichts wird → kompletter Text
+  btnDuplicate.addEventListener("click", () => {
+    let src = left.value || "";
+
+    // 1) Markierung
+    const hasSelection = (typeof left.selectionStart === "number")
+      && (left.selectionStart !== left.selectionEnd);
+
+    if(hasSelection){
+      src = left.value.substring(left.selectionStart, left.selectionEnd);
+      right.value = sunoFormat(src);
+      updateCounts();
+      showToast("Markierung dupliziert 🎯");
+      return;
+    }
+
+    // 2) Checkboxen
+    const selected = Array.from(document.querySelectorAll(".part:checked"))
+      .map(cb => cb.value.trim());
+    const selectedSet = new Set(selected);
+
+    let extracted = extractSelectedParts(src, selectedSet);
+
+    // 3) Fallback
+    if(!extracted.trim()){
+      extracted = src;
+      showToast("Nichts passend gefunden – alles dupliziert 🎹");
+    }else{
+      showToast("Ausgewählte Teile dupliziert 🎹");
+    }
+
+    right.value = sunoFormat(extracted);
+    updateCounts();
+  });
+
+  // Copy (iPad-Fallback)
+  async function copyText(text){
+    try{
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    }catch(e){}
+
+    try{
+      const tmp = document.createElement("textarea");
+      tmp.value = text;
+      tmp.setAttribute("readonly", "");
+      tmp.style.position = "fixed";
+      tmp.style.top = "-9999px";
+      document.body.appendChild(tmp);
+      tmp.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(tmp);
+      return ok;
+    }catch(e){
+      return false;
+    }
+  }
+
+  btnCopy.addEventListener("click", async () => {
+    const ok = await copyText(right.value);
+    showToast(ok ? "Suno-Text kopiert 📋" : "Kopieren blockiert – lange drücken & kopieren");
+  });
+
+  // Speichern: Download (Safari -> Downloads) + optional Save Picker
+  function buildPayload(){
+    return {
+      title: title.value || "",
+      style: style.value || "",
+      left: left.value || "",
+      right: right.value || "",
+      savedAt: new Date().toISOString()
+    };
+  }
+
+  btnSave.addEventListener("click", async () => {
+    const data = JSON.stringify(buildPayload(), null, 2);
+    const filename = (title.value || "Song") + ".songwriter";
+
+    // Save-Picker (meist Chrome/Edge)
+    try{
+      if (window.showSaveFilePicker){
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: "Songwriter Datei", accept: { "application/json": [".songwriter"] } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(new Blob([data], {type:"application/json"}));
+        await writable.close();
+        showToast("Gespeichert ✅");
+        return;
+      }
+    }catch(e){}
+
+    // Fallback: Download
+    const blob = new Blob([data], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    showToast("Download gestartet 💾");
+  });
+
+  // Teilen: iPad/macOS (wenn möglich)
+  btnShare.addEventListener("click", async () => {
+    const data = JSON.stringify(buildPayload(), null, 2);
+    const filename = (title.value || "Song") + ".songwriter";
+
+    try{
+      const file = new File([data], filename, {type:"application/json"});
+      if (navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+        await navigator.share({ files:[file], title:"Songwriter Datei", text:"Songwriter Export" });
+        showToast("Teilen geöffnet 📤");
+      } else {
+        showToast("Teilen nicht verfügbar – nutze Speichern");
+      }
+    }catch(e){}
+  });
+
+  // Laden
+  fileLoad.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const obj = JSON.parse(String(reader.result || "{}"));
+        title.value = obj.title || "";
+        style.value = obj.style || "";
+        left.value  = obj.left  || "";
+        right.value = obj.right || "";
+        updateCounts();
+        showToast("Geladen 📂");
+      }catch(err){
+        showToast("Datei unlesbar – falsches Format");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  updateCounts();
+  activeInfo.textContent = "Aktiv: links";
+})();
+</script>
+</body>
+</html>
