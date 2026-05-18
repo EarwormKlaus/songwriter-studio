@@ -1,516 +1,479 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Songwriter Ultra – Studio Tool</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Songwriter Ultra Studio v2</title>
+
 <style>
-  :root{
-    --bg:#0f1115; --panel:#151923; --panel2:#0b0d12; --text:#e9eef7;
-    --muted:#9aa6b2; --accent:#46b0c7; --danger:#ff4b4b; --line:#273044;
-    --btn:#1e2535; --btn2:#24304a;
-  }
-  *{box-sizing:border-box}
-  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial; background:var(--bg); color:var(--text);}
-  .top{
-    padding:14px 14px 10px;
-    background:linear-gradient(180deg,#162019 0%, #10141c 70%);
-    border-bottom:1px solid var(--line);
-  }
-  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;}
-  .meta{display:flex; gap:10px; flex:1; flex-wrap:wrap;}
-  input.metaIn{
-    background:rgba(0,0,0,.25);
-    border:1px solid rgba(255,255,255,.12);
-    color:var(--danger);
-    padding:10px 12px;
-    border-radius:10px;
-    outline:none;
-    min-width:220px;
-    flex:1;
-    font-size:16px;
-  }
-  .title{font-size:20px; font-weight:700;}
-  .style{font-size:16px;}
 
-  .toolbar{
-    padding:10px 14px 10px;
-    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-  }
-  .toolbar2{
-    padding:0 14px 14px;
-    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center;
-    border-bottom:1px solid var(--line);
-  }
+body{
+margin:0;
+font-family:-apple-system,Arial;
+background:#0f1115;
+color:#e9eef7;
+overflow:hidden;
+}
 
-  .group{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
-  button, label.btn{
-    background:var(--btn);
-    border:1px solid rgba(255,255,255,.10);
-    color:var(--text);
-    padding:9px 11px;
-    border-radius:10px;
-    font-size:13px;
-    cursor:pointer;
-    user-select:none;
-  }
-  button:hover, label.btn:hover{background:var(--btn2)}
-  button.primary{background:rgba(70,176,199,.18); border-color:rgba(70,176,199,.35)}
-  button.danger{background:rgba(255,75,75,.16); border-color:rgba(255,75,75,.35)}
-  button:active{transform:translateY(1px)}
-  label.chk{
-    display:flex; align-items:center; gap:6px;
-    padding:7px 10px;
-    border-radius:10px;
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.08);
-    color:var(--muted);
-    font-size:12px;
-    user-select:none;
-  }
-  label.chk input{accent-color: var(--accent);}
+header{
+padding:12px;
+background:#111827;
+border-bottom:1px solid #273044;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
 
-  .layout{
-    padding:14px;
-    display:flex;
-    gap:14px;
-    flex-wrap:wrap;
-  }
-  .panel{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:14px;
-    box-shadow:0 10px 28px rgba(0,0,0,.25);
-    flex:1 1 520px;
-    min-width:320px;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-  }
-  .panel h3{
-    margin:0;
-    padding:12px 14px;
-    font-size:14px;
-    letter-spacing:.2px;
-    color:var(--muted);
-    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.00));
-    border-bottom:1px solid var(--line);
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-  .hint{font-size:12px; color:rgba(154,166,178,.9)}
-  textarea{
-    width:100%;
-    min-height:62vh;
-    background:var(--panel2);
-    border:0;
-    padding:14px;
-    color:var(--text);
-    font-size:16px;
-    line-height:1.55;
-    outline:none;
-    resize:vertical;
-  }
-  .status{
-    padding:10px 14px;
-    color:var(--muted);
-    border-top:1px solid var(--line);
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
-    font-size:12px;
-  }
-  .pill{padding:3px 8px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08)}
-  .toast{
-    position:fixed;
-    left:50%;
-    bottom:18px;
-    transform:translateX(-50%);
-    background:rgba(20,25,35,.95);
-    border:1px solid rgba(255,255,255,.12);
-    padding:10px 12px;
-    border-radius:12px;
-    color:var(--text);
-    font-size:13px;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .2s ease;
-    max-width:min(92vw,780px);
-  }
-  .toast.show{opacity:1}
-  input[type="file"]{display:none}
+input{
+flex:1;
+min-width:220px;
+padding:10px;
+border-radius:10px;
+border:none;
+background:#05070b;
+color:#ff5a5a;
+font-size:16px;
+}
+
+.toolbar{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+padding:10px;
+background:#151923;
+border-bottom:1px solid #273044;
+}
+
+button{
+background:#1e2535;
+color:white;
+border:1px solid #34405a;
+border-radius:10px;
+padding:8px 12px;
+cursor:pointer;
+font-size:13px;
+}
+
+button:hover{
+background:#29344d;
+}
+
+.layout{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:10px;
+padding:10px;
+height:68vh;
+}
+
+.panel{
+background:#151923;
+border:1px solid #273044;
+border-radius:14px;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+}
+
+.panel h3{
+margin:0;
+padding:10px;
+font-size:14px;
+color:#9aa6b2;
+border-bottom:1px solid #273044;
+}
+
+textarea{
+flex:1;
+background:#05070b;
+color:#e9eef7;
+border:none;
+padding:14px;
+font-size:16px;
+line-height:1.5;
+resize:none;
+outline:none;
+}
+
+.bottom{
+height:22vh;
+display:flex;
+gap:10px;
+padding:10px;
+}
+
+.assistant{
+flex:1;
+background:#151923;
+border:1px solid #273044;
+border-radius:14px;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+}
+
+.assistant h3{
+margin:0;
+padding:10px;
+font-size:14px;
+color:#9aa6b2;
+border-bottom:1px solid #273044;
+}
+
+#assistantOutput{
+flex:1;
+padding:12px;
+overflow:auto;
+white-space:pre-wrap;
+line-height:1.5;
+}
+
+.toast{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#151923;
+border:1px solid #444;
+padding:10px 14px;
+border-radius:12px;
+opacity:0;
+transition:.2s;
+}
+
+.toast.show{
+opacity:1;
+}
+
+@media(max-width:1000px){
+
+.layout{
+grid-template-columns:1fr;
+height:auto;
+}
+
+textarea{
+min-height:250px;
+}
+
+.bottom{
+flex-direction:column;
+height:auto;
+}
+
+}
+
 </style>
 </head>
 
 <body>
-  <div class="top">
-    <div class="row meta">
-      <input id="songTitle" class="metaIn title" placeholder="Songtitel" />
-      <input id="songStyle" class="metaIn style" placeholder="Stil (z.B. sunshine pop, jazz-influenced)" />
-    </div>
-  </div>
 
-  <div class="toolbar">
-    <div class="group">
-      <button id="btnSave" class="primary" title="Safari lädt in Downloads. Mit Teilen kannst du 'In Dateien sichern'.">💾 Speichern</button>
-      <button id="btnShare" title="iPad/macOS: In Dateien sichern (wenn verfügbar)">📤 Teilen</button>
-    </div>
+<header>
 
-    <div class="group" aria-label="Struktur">
-      <button data-tag="Intro">Intro</button>
-      <button data-tag="Verse">Verse</button>
-      <button data-tag="Pre-Chorus">Pre</button>
-      <button data-tag="Chorus">Chorus</button>
-      <button data-tag="Refrain">Ref</button>
-      <button data-tag="Hook">Hook</button>
-      <button data-tag="Bridge">Bridge</button>
-      <button data-tag="Instrumental">Inst</button>
-      <button data-tag="Outro">Outro</button>
-    </div>
+<input id="songTitle" placeholder="Songtitel">
+<input id="songStyle" placeholder="Song Stil">
 
-    <div class="group">
-      <button id="btnDuplicate" class="danger" title="Wenn du Text markierst: nur Markierung. Sonst: nur angehakte Teile.">🎹 Auto-Duplizieren</button>
-      <button id="btnCopy" title="Kopiert rechts in die Zwischenablage (Suno).">📋 Suno Copy</button>
-      <label class="btn" for="fileLoad">📂 Laden</label>
-      <input id="fileLoad" type="file" accept=".songwriter,application/json" />
-    </div>
-  </div>
+</header>
 
-  <!-- Selektives Duplizieren -->
-  <div class="toolbar2">
-    <div class="group" aria-label="Selektives Duplizieren">
-      <span class="hint">Auto-Duplizieren nimmt:</span>
-      <label class="chk"><input type="checkbox" class="part" value="Intro" checked> Intro</label>
-      <label class="chk"><input type="checkbox" class="part" value="Verse" checked> Verse</label>
-      <label class="chk"><input type="checkbox" class="part" value="Pre-Chorus" checked> Pre</label>
-      <label class="chk"><input type="checkbox" class="part" value="Chorus" checked> Chorus</label>
-      <label class="chk"><input type="checkbox" class="part" value="Refrain" checked> Ref</label>
-      <label class="chk"><input type="checkbox" class="part" value="Hook" checked> Hook</label>
-      <label class="chk"><input type="checkbox" class="part" value="Bridge" checked> Bridge</label>
-      <label class="chk"><input type="checkbox" class="part" value="Instrumental" checked> Inst</label>
-      <label class="chk"><input type="checkbox" class="part" value="Outro" checked> Outro</label>
-    </div>
-  </div>
+<div class="toolbar">
 
-  <div class="layout">
-    <section class="panel">
-      <h3>
-        <span>Links – Rohtext / Erste Idee</span>
-        <span class="hint">Tipp: markiere nur die besten Zeilen → Auto-Duplizieren</span>
-      </h3>
-      <textarea id="left" placeholder="Hier rein: Entwurf, Textfragmente, Varianten…"></textarea>
-      <div class="status">
-        <span class="pill" id="leftInfo">0 Zeichen</span>
-        <span class="pill" id="activeInfo">Aktiv: links</span>
-      </div>
-    </section>
+<button id="btnAll">🎹 Alles</button>
+<button id="btnSplit">🎛 Split Variants</button>
+<button id="btnCopy">📋 Suno Copy + Stil</button>
 
-    <section class="panel">
-      <h3>
-        <span>Rechts – Studio / Suno-Ready</span>
-        <span class="hint">Copy → Suno, fertig.</span>
-      </h3>
-      <textarea id="right" placeholder="Hier entsteht die saubere Version…"></textarea>
-      <div class="status">
-        <span class="pill" id="rightInfo">0 Zeichen</span>
-        <span class="pill">Format: [Chorus] etc.</span>
-      </div>
-    </section>
-  </div>
+<button data-tag="Intro">Intro</button>
+<button data-tag="Verse">Verse</button>
+<button data-tag="Pre-Chorus">Pre</button>
+<button data-tag="Chorus">Chorus</button>
+<button data-tag="Refrain">Ref</button>
+<button data-tag="Hook">Hook</button>
+<button data-tag="Bridge">Bridge</button>
+<button data-tag="Instrumental">Inst</button>
+<button data-tag="Outro">Outro</button>
 
-  <div id="toast" class="toast"></div>
+<button data-mood="melancholisch">🌧 Melancholisch</button>
+<button data-mood="episch">⚡ Episch</button>
+<button data-mood="dreamy">🌙 Dreamy</button>
+<button data-mood="dark synth">🖤 Dark Synth</button>
+<button data-mood="uplifting">☀️ Uplifting</button>
+
+<button id="btnAssistant">🎤 KI-Assistent</button>
+
+<button id="clearLeft">🗑 Links</button>
+<button id="clearA">🗑 Mitte</button>
+<button id="clearB">🗑 Rechts</button>
+
+</div>
+
+<div class="layout">
+
+<div class="panel">
+<h3>📝 Rohtext</h3>
+<textarea id="left"></textarea>
+</div>
+
+<div class="panel">
+<h3>🎹 Variante A</h3>
+<textarea id="middle"></textarea>
+</div>
+
+<div class="panel">
+<h3>🎶 Variante B</h3>
+<textarea id="right"></textarea>
+</div>
+
+</div>
+
+<div class="bottom">
+
+<div class="assistant">
+<h3>🎤 KI Songwriter Assistant</h3>
+<div id="assistantOutput">
+Markiere links eine Zeile oder mehrere Zeilen und drücke „KI-Assistent“.
+</div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-(() => {
-  const $ = (id) => document.getElementById(id);
 
-  const title = $("songTitle");
-  const style = $("songStyle");
-  const left  = $("left");
-  const right = $("right");
+const left=document.getElementById("left");
+const middle=document.getElementById("middle");
+const right=document.getElementById("right");
 
-  const btnSave = $("btnSave");
-  const btnShare = $("btnShare");
-  const btnDuplicate = $("btnDuplicate");
-  const btnCopy = $("btnCopy");
-  const fileLoad = $("fileLoad");
+const title=document.getElementById("songTitle");
+const style=document.getElementById("songStyle");
 
-  const leftInfo = $("leftInfo");
-  const rightInfo = $("rightInfo");
-  const activeInfo = $("activeInfo");
-  const toast = $("toast");
+const assistant=document.getElementById("assistantOutput");
+const toast=document.getElementById("toast");
 
-  let active = left;
+let active=left;
 
-  function showToast(msg){
-    toast.textContent = msg;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 1400);
-  }
+/* aktive textarea */
 
-  function updateCounts(){
-    leftInfo.textContent = `${left.value.length} Zeichen`;
-    rightInfo.textContent = `${right.value.length} Zeichen`;
-  }
+[left,middle,right].forEach(t=>{
 
-  [left, right].forEach(t => {
-    t.addEventListener("focus", () => {
-      active = t;
-      activeInfo.textContent = `Aktiv: ${t === left ? "links" : "rechts"}`;
-    });
-    t.addEventListener("input", updateCounts);
-    t.addEventListener("click", () => {
-      active = t;
-      activeInfo.textContent = `Aktiv: ${t === left ? "links" : "rechts"}`;
-    });
-  });
+t.addEventListener("focus",()=>active=t);
+t.addEventListener("click",()=>active=t);
 
-  // Struktur-Buttons: Marker in aktives Feld (links oder rechts)
-  document.querySelectorAll("[data-tag]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const tag = btn.dataset.tag;
-      const t = active || left;
-      const pos = (typeof t.selectionStart === "number") ? t.selectionStart : t.value.length;
-      const before = t.value.slice(0, pos);
-      const after  = t.value.slice(pos);
-      const block = `\n[${tag}]\n`;
-      t.value = before + block + after;
-      t.focus();
-      updateCounts();
-    });
-  });
+});
 
-  // Suno-Formatierung: kompatibel + ordentliche Marker
-  function sunoFormat(text){
-    if(!text) return "";
-    let t = text.replace(/\r\n/g, "\n");
+/* toast */
 
-    const aliases = [
-      ["strophe","Verse"], ["verse","Verse"],
-      ["intro","Intro"],
-      ["pre-chorus","Pre-Chorus"], ["pre chorus","Pre-Chorus"],
-      ["chorus","Chorus"],
-      ["refrain","Refrain"],
-      ["hook","Hook"],
-      ["bridge","Bridge"],
-      ["instrumental","Instrumental"],
-      ["outro","Outro"]
-    ];
+function msg(t){
 
-    // Zeilen wie "Chorus:" / "Chorus -" → [Chorus]
-    const headerRegex = /^(\s*)([\wÄÖÜäöüß \-]+)\s*[:\-–—]\s*$/gm;
-    t = t.replace(headerRegex, (m, sp, raw) => {
-      const key = raw.trim().toLowerCase();
-      const found = aliases.find(([k]) => k === key);
-      const name = found ? found[1] : raw.trim();
-      return `${sp}[${name}]`;
-    });
+toast.textContent=t;
+toast.classList.add("show");
 
-    // Vorhandene [tags] normieren
-    t = t.replace(/^\s*\[([^\]]+)\]\s*$/gm, (m, inside) => {
-      const key = inside.trim().toLowerCase();
-      const found = aliases.find(([k]) => k === key);
-      const name = found ? found[1] : inside.trim();
-      return `[${name}]`;
-    });
+setTimeout(()=>{
+toast.classList.remove("show");
+},1400);
 
-    t = t.replace(/\n{3,}/g, "\n\n");
-    t = t.trim() + "\n";
-    return t;
-  }
+}
 
-  // Aus Rohtext nur ausgewählte Teile extrahieren (nach [Tag]-Blöcken)
-  function extractSelectedParts(fullText, selectedSet){
-    const lines = fullText.replace(/\r\n/g, "\n").split("\n");
-    let out = [];
-    let currentTag = null;
-    let currentBlock = [];
+/* struktur */
 
-    function flush(){
-      if(!currentBlock.length) return;
-      if(currentTag && selectedSet.has(currentTag)){
-        out.push(currentBlock.join("\n").trimEnd());
-      }
-      currentBlock = [];
-    }
+document.querySelectorAll("[data-tag]").forEach(btn=>{
 
-    for(const line of lines){
-      const m = line.match(/^\s*\[([^\]]+)\]\s*$/);
-      if(m){
-        flush();
-        currentTag = m[1].trim();
-        currentBlock = [ `[${currentTag}]` ];
-      }else{
-        // Text vor erstem Tag: behandeln wir als "Verse" (optional)
-        if(!currentTag){
-          currentTag = "Verse";
-          currentBlock = [ `[${currentTag}]` ];
-        }
-        currentBlock.push(line);
-      }
-    }
-    flush();
+btn.addEventListener("click",()=>{
 
-    const joined = out.join("\n\n").replace(/\n{3,}/g,"\n\n").trim() + "\n";
-    return joined === "\n" ? "" : joined;
-  }
+const tag=btn.dataset.tag;
 
-  // 🎹 Auto-Duplizieren – 3 Modi:
-  // 1) Markierung in links → nur Markierung
-  // 2) sonst Checkbox-Auswahl → nur diese Parts (nach Tags)
-  // 3) wenn daraus nichts wird → kompletter Text
-  btnDuplicate.addEventListener("click", () => {
-    let src = left.value || "";
+const pos=active.selectionStart||active.value.length;
 
-    // 1) Markierung
-    const hasSelection = (typeof left.selectionStart === "number")
-      && (left.selectionStart !== left.selectionEnd);
+active.value=
+active.value.slice(0,pos)
++"\n["+tag+"]\n"
++active.value.slice(pos);
 
-    if(hasSelection){
-      src = left.value.substring(left.selectionStart, left.selectionEnd);
-      right.value = sunoFormat(src);
-      updateCounts();
-      showToast("Markierung dupliziert 🎯");
-      return;
-    }
+active.focus();
 
-    // 2) Checkboxen
-    const selected = Array.from(document.querySelectorAll(".part:checked"))
-      .map(cb => cb.value.trim());
-    const selectedSet = new Set(selected);
+});
 
-    let extracted = extractSelectedParts(src, selectedSet);
+});
 
-    // 3) Fallback
-    if(!extracted.trim()){
-      extracted = src;
-      showToast("Nichts passend gefunden – alles dupliziert 🎹");
-    }else{
-      showToast("Ausgewählte Teile dupliziert 🎹");
-    }
+/* alles */
 
-    right.value = sunoFormat(extracted);
-    updateCounts();
-  });
+document.getElementById("btnAll").addEventListener("click",()=>{
 
-  // Copy (iPad-Fallback)
-  async function copyText(text){
-    try{
-      if (navigator.clipboard && navigator.clipboard.writeText){
-        await navigator.clipboard.writeText(text);
-        return true;
-      }
-    }catch(e){}
+middle.value=left.value;
+right.value=left.value;
 
-    try{
-      const tmp = document.createElement("textarea");
-      tmp.value = text;
-      tmp.setAttribute("readonly", "");
-      tmp.style.position = "fixed";
-      tmp.style.top = "-9999px";
-      document.body.appendChild(tmp);
-      tmp.select();
-      const ok = document.execCommand("copy");
-      document.body.removeChild(tmp);
-      return ok;
-    }catch(e){
-      return false;
-    }
-  }
+msg("Alles übernommen 🎹");
 
-  btnCopy.addEventListener("click", async () => {
-    const ok = await copyText(right.value);
-    showToast(ok ? "Suno-Text kopiert 📋" : "Kopieren blockiert – lange drücken & kopieren");
-  });
+});
 
-  // Speichern: Download (Safari -> Downloads) + optional Save Picker
-  function buildPayload(){
-    return {
-      title: title.value || "",
-      style: style.value || "",
-      left: left.value || "",
-      right: right.value || "",
-      savedAt: new Date().toISOString()
-    };
-  }
+/* split variants */
 
-  btnSave.addEventListener("click", async () => {
-    const data = JSON.stringify(buildPayload(), null, 2);
-    const filename = (title.value || "Song") + ".songwriter";
+document.getElementById("btnSplit").addEventListener("click",()=>{
 
-    // Save-Picker (meist Chrome/Edge)
-    try{
-      if (window.showSaveFilePicker){
-        const handle = await window.showSaveFilePicker({
-          suggestedName: filename,
-          types: [{ description: "Songwriter Datei", accept: { "application/json": [".songwriter"] } }]
-        });
-        const writable = await handle.createWritable();
-        await writable.write(new Blob([data], {type:"application/json"}));
-        await writable.close();
-        showToast("Gespeichert ✅");
-        return;
-      }
-    }catch(e){}
+const txt=left.value;
 
-    // Fallback: Download
-    const blob = new Blob([data], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-    showToast("Download gestartet 💾");
-  });
+middle.value=
+txt
+.replace(/sehr/g,"")
+.replace(/wirklich/g,"")
+.replace(/\n{3,}/g,"\n\n");
 
-  // Teilen: iPad/macOS (wenn möglich)
-  btnShare.addEventListener("click", async () => {
-    const data = JSON.stringify(buildPayload(), null, 2);
-    const filename = (title.value || "Song") + ".songwriter";
+right.value=
+txt
++"\n\n[Hook]\n"
++"Bleib noch hier in dieser Nacht";
 
-    try{
-      const file = new File([data], filename, {type:"application/json"});
-      if (navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-        await navigator.share({ files:[file], title:"Songwriter Datei", text:"Songwriter Export" });
-        showToast("Teilen geöffnet 📤");
-      } else {
-        showToast("Teilen nicht verfügbar – nutze Speichern");
-      }
-    }catch(e){}
-  });
+msg("Varianten erzeugt 🎛");
 
-  // Laden
-  fileLoad.addEventListener("change", (e) => {
-    const file = e.target.files && e.target.files[0];
-    if(!file) return;
+});
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      try{
-        const obj = JSON.parse(String(reader.result || "{}"));
-        title.value = obj.title || "";
-        style.value = obj.style || "";
-        left.value  = obj.left  || "";
-        right.value = obj.right || "";
-        updateCounts();
-        showToast("Geladen 📂");
-      }catch(err){
-        showToast("Datei unlesbar – falsches Format");
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = "";
-  });
+/* moods */
 
-  updateCounts();
-  activeInfo.textContent = "Aktiv: links";
-})();
+document.querySelectorAll("[data-mood]").forEach(btn=>{
+
+btn.addEventListener("click",()=>{
+
+const mood=btn.dataset.mood;
+
+middle.value=
+"[Mood: "+mood+"]\n\n"+middle.value;
+
+right.value=
+"[Mood: "+mood+"]\n\n"+right.value;
+
+msg("Mood angewendet 🌈");
+
+});
+
+});
+
+/* KI ASSISTENT */
+
+const suggestions=[
+
+"Ich hör dein Echo durch die Nacht",
+"Die Sterne tragen deinen Namen",
+"Im Neonlicht verlieren wir die Zeit",
+"Dein Herz schlägt leise gegen meins",
+"Wir tanzen weiter bis der Morgen bricht",
+"Zwischen Schatten lebt noch Licht",
+"Ich trag die Träume durch die Nacht",
+"Dein Blick klingt wie ein letzter Song",
+"Im Regen glüht noch unser Licht",
+"Wir fallen langsam Richtung Himmel"
+
+];
+
+document.getElementById("btnAssistant").addEventListener("click",()=>{
+
+let text="";
+
+if(left.selectionStart!==left.selectionEnd){
+
+text=
+left.value.substring(
+left.selectionStart,
+left.selectionEnd
+);
+
+}else{
+
+text=left.value;
+
+}
+
+const lines=text
+.split("\n")
+.filter(l=>l.trim()!="");
+
+let out="";
+
+lines.forEach(line=>{
+
+out+="🎵 "+line+"\n\n";
+
+for(let i=0;i<3;i++){
+
+const s=
+suggestions[
+Math.floor(Math.random()*suggestions.length)
+];
+
+out+="→ "+s+"\n";
+
+}
+
+out+="\n";
+
+});
+
+assistant.textContent=out;
+
+msg("KI Vorschläge erzeugt 🎤");
+
+});
+
+/* copy */
+
+document.getElementById("btnCopy").addEventListener("click",async()=>{
+
+const txt=
+"Titel: "+title.value+"\n\n"
++"Stil: "+style.value+"\n\n"
++right.value;
+
+try{
+
+await navigator.clipboard.writeText(txt);
+
+msg("Suno-Ready kopiert 📋");
+
+}catch(e){
+
+right.select();
+document.execCommand("copy");
+
+msg("Kopiert 📋");
+
+}
+
+});
+
+/* löschen */
+
+document.getElementById("clearLeft").addEventListener("click",()=>{
+
+if(confirm("Rohtext löschen?")){
+
+left.value="";
+msg("Links gelöscht");
+
+}
+
+});
+
+document.getElementById("clearA").addEventListener("click",()=>{
+
+if(confirm("Variante A löschen?")){
+
+middle.value="";
+msg("Mitte gelöscht");
+
+}
+
+});
+
+document.getElementById("clearB").addEventListener("click",()=>{
+
+if(confirm("Variante B löschen?")){
+
+right.value="";
+msg("Rechts gelöscht");
+
+}
+
+});
+
 </script>
+
 </body>
 </html>
