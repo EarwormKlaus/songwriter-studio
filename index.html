@@ -250,230 +250,229 @@ const assistant=document.getElementById("assistantOutput");
 const toast=document.getElementById("toast");
 
 let active=left;
-
-/* aktive textarea */
+let currentMood="neutral";
 
 [left,middle,right].forEach(t=>{
-
-t.addEventListener("focus",()=>active=t);
-t.addEventListener("click",()=>active=t);
-
+  t.addEventListener("focus",()=>active=t);
+  t.addEventListener("click",()=>active=t);
 });
-
-/* toast */
 
 function msg(t){
-
-toast.textContent=t;
-toast.classList.add("show");
-
-setTimeout(()=>{
-toast.classList.remove("show");
-},1400);
-
+  toast.textContent=t;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),1400);
 }
 
-/* struktur */
+function getMarkedText(){
+  if(left.selectionStart!==left.selectionEnd){
+    return left.value.substring(left.selectionStart,left.selectionEnd).trim();
+  }
+  return left.value.trim();
+}
 
+function detectTheme(text){
+  const t=text.toLowerCase();
+
+  if(t.includes("kampf")||t.includes("spiel")||t.includes("ball")||t.includes("sieg")||t.includes("schiedsrichter")||t.includes("mannschaft")||t.includes("rugby")){
+    return "sport";
+  }
+
+  if(t.includes("liebe")||t.includes("kuss")||t.includes("schatz")||t.includes("herz")||t.includes("liebsten")){
+    return "liebe";
+  }
+
+  if(t.includes("regen")||t.includes("grau")||t.includes("kalt")||t.includes("frieren")){
+    return "regen";
+  }
+
+  if(t.includes("nacht")||t.includes("sterne")||t.includes("mond")){
+    return "nacht";
+  }
+
+  if(t.includes("meer")||t.includes("strand")||t.includes("wellen")||t.includes("sand")){
+    return "meer";
+  }
+
+  return "allgemein";
+}
+
+function makeSuggestions(text){
+  const theme=detectTheme(text);
+
+  const banks={
+    sport:[
+      "Wir fallen hin und stehen wieder auf",
+      "Der letzte Pfiff trägt unsern Traum",
+      "Kein Schritt zurück, wir halten stand",
+      "Mit Matsch im Gesicht und Feuer im Blick",
+      "Der Sieg riecht nach Regen und kaltem Gras"
+    ],
+    liebe:[
+      "Du wartest dort, wo mein Herz lauter schlägt",
+      "Dein Blick macht selbst den Regen warm",
+      "Ein Kuss reicht aus und alles wird leicht",
+      "Bei dir wird selbst der Sonntag hell",
+      "Du bist mein Heimweg nach dem Sturm"
+    ],
+    regen:[
+      "Der Himmel wäscht den Tag ganz leise",
+      "Aus grauen Wolken wächst ein Licht",
+      "Wir frieren kurz und lachen später",
+      "Der Regen schreibt uns auf die Haut",
+      "Im kalten Wind bleibt Wärme übrig"
+    ],
+    nacht:[
+      "Die Nacht trägt uns wie ein leises Lied",
+      "Im Dunkeln glüht noch unser Mut",
+      "Wir finden Licht, wo keines war",
+      "Der Mond sieht zu und sagt kein Wort",
+      "Bis früh am Morgen hält uns nichts"
+    ],
+    meer:[
+      "Die Wellen nehmen unser Gestern mit",
+      "Im Sand bleibt nur ein warmer Schritt",
+      "Der Wind singt leise deinen Namen",
+      "Wir laufen barfuß durch das Licht",
+      "Das Meer hält fest, was uns bewegt"
+    ],
+    allgemein:[
+      "Aus kleinen Zeilen wird ein großer Moment",
+      "Wir gehen weiter, auch wenn keiner weiß wohin",
+      "Ein neuer Morgen wartet schon",
+      "Was eben schwer war, wird jetzt leicht",
+      "Zwischen Zweifel wächst ein Lied"
+    ]
+  };
+
+  let moodLine="";
+  if(currentMood==="melancholisch") moodLine="sanfter, nachdenklicher";
+  if(currentMood==="episch") moodLine="größer, kraftvoller";
+  if(currentMood==="dreamy") moodLine="träumerischer, schwebender";
+  if(currentMood==="dark synth") moodLine="dunkler, moderner";
+  if(currentMood==="uplifting") moodLine="heller, hoffnungsvoller";
+
+  let out="🎵 Markierter Text:\n"+text+"\n\n";
+  out+="Erkanntes Thema: "+theme+"\n";
+  out+="Mood: "+currentMood+(moodLine ? " ("+moodLine+")" : "")+"\n\n";
+  out+="Vorschläge:\n\n";
+
+  banks[theme].forEach(s=>{
+    out+="→ "+applyMoodToLine(s)+"\n";
+  });
+
+  return out;
+}
+
+function applyMoodToLine(line){
+  if(currentMood==="melancholisch") return line.replace("Licht","leises Licht");
+  if(currentMood==="episch") return line+" — wir geben nicht auf";
+  if(currentMood==="dreamy") return line+" im schimmernden Licht";
+  if(currentMood==="dark synth") return line+" unter kaltem Neon";
+  if(currentMood==="uplifting") return line+" und alles wird hell";
+  return line;
+}
+
+/* Strukturbuttons */
 document.querySelectorAll("[data-tag]").forEach(btn=>{
-
-btn.addEventListener("click",()=>{
-
-const tag=btn.dataset.tag;
-
-const pos=active.selectionStart||active.value.length;
-
-active.value=
-active.value.slice(0,pos)
-+"\n["+tag+"]\n"
-+active.value.slice(pos);
-
-active.focus();
-
+  btn.addEventListener("click",()=>{
+    const tag=btn.dataset.tag;
+    const pos=active.selectionStart||active.value.length;
+    active.value=active.value.slice(0,pos)+"\n["+tag+"]\n"+active.value.slice(pos);
+    active.focus();
+  });
 });
 
-});
-
-/* alles */
-
+/* Alles übernehmen */
 document.getElementById("btnAll").addEventListener("click",()=>{
-
-middle.value=left.value;
-right.value=left.value;
-
-msg("Alles übernommen 🎹");
-
+  middle.value=left.value;
+  right.value=left.value;
+  msg("Alles übernommen 🎹");
 });
 
-/* split variants */
-
+/* Split Variants verbessert */
 document.getElementById("btnSplit").addEventListener("click",()=>{
+  const txt=left.value.trim();
 
-const txt=left.value;
-
-middle.value=
+  middle.value=
+"[Variante A - kompakter]\n\n"+
 txt
-.replace(/sehr/g,"")
-.replace(/wirklich/g,"")
+.replace(/Langsam, aber /gi,"")
+.replace(/Noch nicht ganz ..., aber /gi,"")
+.replace(/wirklich /gi,"")
+.replace(/sehr /gi,"")
 .replace(/\n{3,}/g,"\n\n");
 
-right.value=
-txt
-+"\n\n[Hook]\n"
-+"Bleib noch hier in dieser Nacht";
+  right.value=
+"[Variante B - emotionaler]\n\n"+
+txt+
+"\n\n[Hook]\n"+
+"Wir schenken uns nichts, wir geben nicht auf\n"+
+"Mit kalten Händen und Feuer im Lauf\n"+
+"Bis der letzte Pfiff den Himmel berührt";
 
-msg("Varianten erzeugt 🎛");
-
+  msg("Neue Varianten erzeugt 🎛");
 });
 
-/* moods */
-
+/* Mood sichtbar */
 document.querySelectorAll("[data-mood]").forEach(btn=>{
-
-btn.addEventListener("click",()=>{
-
-const mood=btn.dataset.mood;
-
-middle.value=
-"[Mood: "+mood+"]\n\n"+middle.value;
-
-right.value=
-"[Mood: "+mood+"]\n\n"+right.value;
-
-msg("Mood angewendet 🌈");
-
+  btn.addEventListener("click",()=>{
+    currentMood=btn.dataset.mood;
+    msg("Mood gesetzt: "+currentMood+" 🌈");
+  });
 });
 
-});
-
-/* KI ASSISTENT */
-
-const suggestions=[
-
-"Ich hör dein Echo durch die Nacht",
-"Die Sterne tragen deinen Namen",
-"Im Neonlicht verlieren wir die Zeit",
-"Dein Herz schlägt leise gegen meins",
-"Wir tanzen weiter bis der Morgen bricht",
-"Zwischen Schatten lebt noch Licht",
-"Ich trag die Träume durch die Nacht",
-"Dein Blick klingt wie ein letzter Song",
-"Im Regen glüht noch unser Licht",
-"Wir fallen langsam Richtung Himmel"
-
-];
-
+/* Co-Writer */
 document.getElementById("btnAssistant").addEventListener("click",()=>{
+  const text=getMarkedText();
 
-let text="";
+  if(!text){
+    assistant.textContent="Bitte links Text markieren oder Rohtext einfügen.";
+    return;
+  }
 
-if(left.selectionStart!==left.selectionEnd){
-
-text=
-left.value.substring(
-left.selectionStart,
-left.selectionEnd
-);
-
-}else{
-
-text=left.value;
-
-}
-
-const lines=text
-.split("\n")
-.filter(l=>l.trim()!="");
-
-let out="";
-
-lines.forEach(line=>{
-
-out+="🎵 "+line+"\n\n";
-
-for(let i=0;i<3;i++){
-
-const s=
-suggestions[
-Math.floor(Math.random()*suggestions.length)
-];
-
-out+="→ "+s+"\n";
-
-}
-
-out+="\n";
-
+  assistant.textContent=makeSuggestions(text);
+  msg("Co-Writer hat zugehört 🎤");
 });
 
-assistant.textContent=out;
-
-msg("KI Vorschläge erzeugt 🎤");
-
-});
-
-/* copy */
-
+/* Copy */
 document.getElementById("btnCopy").addEventListener("click",async()=>{
+  const txt=
+"Titel: "+title.value+"\n\n"+
+"Stil: "+style.value+"\n\n"+
+right.value;
 
-const txt=
-"Titel: "+title.value+"\n\n"
-+"Stil: "+style.value+"\n\n"
-+right.value;
-
-try{
-
-await navigator.clipboard.writeText(txt);
-
-msg("Suno-Ready kopiert 📋");
-
-}catch(e){
-
-right.select();
-document.execCommand("copy");
-
-msg("Kopiert 📋");
-
-}
-
+  try{
+    await navigator.clipboard.writeText(txt);
+    msg("Suno-Ready kopiert 📋");
+  }catch(e){
+    right.select();
+    document.execCommand("copy");
+    msg("Kopiert 📋");
+  }
 });
 
-/* löschen */
-
+/* Löschen */
 document.getElementById("clearLeft").addEventListener("click",()=>{
-
-if(confirm("Rohtext löschen?")){
-
-left.value="";
-msg("Links gelöscht");
-
-}
-
+  if(confirm("Rohtext löschen?")){
+    left.value="";
+    msg("Links gelöscht");
+  }
 });
 
 document.getElementById("clearA").addEventListener("click",()=>{
-
-if(confirm("Variante A löschen?")){
-
-middle.value="";
-msg("Mitte gelöscht");
-
-}
-
+  if(confirm("Variante A löschen?")){
+    middle.value="";
+    msg("Mitte gelöscht");
+  }
 });
 
 document.getElementById("clearB").addEventListener("click",()=>{
-
-if(confirm("Variante B löschen?")){
-
-right.value="";
-msg("Rechts gelöscht");
-
-}
-
+  if(confirm("Variante B löschen?")){
+    right.value="";
+    msg("Rechts gelöscht");
+  }
 });
 
 </script>
-
 </body>
 </html>
