@@ -444,20 +444,45 @@ document.getElementById("btnAssistant").addEventListener("click",()=>{
 });
 
 /* Copy */
-document.getElementById("btnCopy").addEventListener("click",async()=>{
-  const txt=
-"Titel: "+title.value+"\n\n"+
-"Stil: "+style.value+"\n\n"+
-right.value;
+document.getElementById("btnSplit").addEventListener("click",()=>{
 
-  try{
-    await navigator.clipboard.writeText(txt);
-    msg("Suno-Ready kopiert 📋");
-  }catch(e){
-    right.select();
-    document.execCommand("copy");
-    msg("Kopiert 📋");
-  }
+const txt=left.value.trim();
+
+if(!txt){
+msg("Bitte zuerst Rohtext eingeben");
+return;
+}
+
+/* Variante A = kompakter */
+
+middle.value=
+"[Variante A - kompakter]\n\n"+
+txt
+.replace(/Langsam, aber /gi,"")
+.replace(/wirklich /gi,"")
+.replace(/sehr /gi,"")
+.replace(/ganz /gi,"")
+.replace(/Doch dann /gi,"Dann ")
+.replace(/Die Sonne kommt jetzt hervor und /gi,"Die Sonne ")
+.replace(/\n{3,}/g,"\n\n");
+
+/* Variante B = emotionaler */
+
+right.value=
+"[Variante B - emotionaler]\n\n"+
+txt+
+
+"\n\n[Pre-Chorus]\n"+
+"Wir stehen im Regen und geben nicht auf\n"+
+"Der Himmel ist grau doch wir schauen hinauf"+
+
+"\n\n[Hook]\n"+
+"Wir schenken uns nichts — bis der letzte Atem fällt\n"+
+"Mit Schlamm auf den Schuhen und Feuer in der Welt";
+
+msg("Neue kreative Varianten erzeugt 🎛");
+
+});
 });
 
 /* Löschen */
