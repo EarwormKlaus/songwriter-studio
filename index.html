@@ -427,7 +427,8 @@ document.querySelectorAll("[data-mood]").forEach(btn=>{
   btn.addEventListener("click",()=>{
     currentMood=btn.dataset.mood;
     msg("Mood gesetzt: "+currentMood+" 🌈");
-  });
+    middle.value="[Mood: "+currentMood+"]\n\n"+middle.value;
+right.value="[Mood: "+currentMood+"]\n\n"+right.value;
 });
 
 /* Co-Writer */
