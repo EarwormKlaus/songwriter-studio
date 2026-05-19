@@ -520,6 +520,24 @@ msg("Variante B gelöscht");
 }
 });
 </script>
+/* Alles löschen */
 
+document.getElementById("clearAll").addEventListener("click",()=>{
+
+title.value="";
+style.value="";
+
+left.value="";
+middle.value="";
+right.value="";
+
+assistant.textContent=
+"Markiere links eine Zeile oder mehrere Zeilen und drücke „Co-Writer“.";
+
+currentMood="neutral";
+
+msg("Studio geleert 💥");
+
+});
 </body>
 </html>
