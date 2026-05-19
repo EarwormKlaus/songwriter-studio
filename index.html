@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Songwriter Ultra Studio v2.6</title>
+<title>Songwriter Ultra Studio v2.7</title>
 
 <style>
+
 *{box-sizing:border-box}
+
 body{
 margin:0;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
@@ -53,16 +55,24 @@ cursor:pointer;
 font-size:13px;
 }
 
-button:hover,label:hover{background:#29344d}
-.primary{background:#173845}
-.danger{background:#4a1f28}
+button:hover,label:hover{
+background:#29344d;
+}
+
+.primary{
+background:#173845;
+}
+
+.danger{
+background:#4a1f28;
+}
 
 .layout{
 display:grid;
 grid-template-columns:1fr 1fr 1fr;
 gap:10px;
 padding:10px;
-height:62vh;
+height:60vh;
 }
 
 .panel{
@@ -89,13 +99,13 @@ color:#e9eef7;
 border:none;
 padding:14px;
 font-size:16px;
-line-height:1.55;
+line-height:1.6;
 resize:none;
 outline:none;
 }
 
 .bottom{
-height:26vh;
+height:28vh;
 padding:10px;
 }
 
@@ -141,42 +151,58 @@ transition:.2s;
 z-index:99;
 }
 
-.toast.show{opacity:1}
+.toast.show{
+opacity:1;
+}
 
-input[type=file]{display:none}
+input[type=file]{
+display:none;
+}
 
 @media(max-width:1000px){
+
 .layout{
 grid-template-columns:1fr;
 height:auto;
 }
+
 textarea{
 min-height:260px;
 }
+
 .bottom{
-height:320px;
+height:340px;
 }
+
 }
+
 </style>
 </head>
 
 <body>
 
 <header>
+
 <input id="songTitle" placeholder="Songtitel">
 <input id="songStyle" placeholder="Song Stil">
+
 </header>
 
 <div class="toolbar">
+
 <button id="btnAll" class="primary">🎹 Alles</button>
 <button id="btnSplit" class="primary">🎛 Split Variants</button>
 <button id="btnCopy">📋 Suno Copy + Stil</button>
+
 <button id="btnSave">💾 Speichern</button>
+
 <label for="fileLoad">📂 Laden</label>
 <input id="fileLoad" type="file" accept=".songwriter,application/json">
+
 </div>
 
 <div class="toolbar">
+
 <button data-tag="Intro">Intro</button>
 <button data-tag="Verse">Verse</button>
 <button data-tag="Pre-Chorus">Pre</button>
@@ -186,25 +212,32 @@ height:320px;
 <button data-tag="Bridge">Bridge</button>
 <button data-tag="Instrumental">Inst</button>
 <button data-tag="Outro">Outro</button>
+
 </div>
 
 <div class="toolbar">
+
 <button data-mood="melancholisch">🌧 Melancholisch</button>
 <button data-mood="episch">⚡ Episch</button>
 <button data-mood="dreamy">🌙 Dreamy</button>
 <button data-mood="dark synth">🖤 Dark Synth</button>
 <button data-mood="uplifting">☀️ Uplifting</button>
+
 <button id="btnAssistant" class="primary">🎤 Co-Writer</button>
+
 </div>
 
 <div class="toolbar">
+
 <button id="clearLeft" class="danger">🗑 Rohtext</button>
 <button id="clearA" class="danger">🗑 Variante A</button>
 <button id="clearB" class="danger">🗑 Variante B</button>
 <button id="clearAll" class="danger">💥 Alles löschen</button>
+
 </div>
 
 <div class="layout">
+
 <div class="panel">
 <h3>📝 Rohtext</h3>
 <textarea id="left" placeholder="Hier deinen Rohtext einfügen..."></textarea>
@@ -219,202 +252,356 @@ height:320px;
 <h3>🎶 Variante B — emotionaler / Suno-ready</h3>
 <textarea id="right" placeholder="Hier entsteht Variante B..."></textarea>
 </div>
+
 </div>
 
 <div class="bottom">
+
 <div class="assistant">
-<h3>🎤 Co-Writer / Reim- und Zeilen-Assistent</h3>
-<div id="assistantOutput">Markiere links eine Zeile oder mehrere Zeilen und drücke „Co-Writer“.</div>
+
+<h3>🎤 Co-Writer / Reim-Assistent</h3>
+
+<div id="assistantOutput">
+Markiere links eine Zeile oder mehrere Zeilen und drücke „Co-Writer“.
 </div>
+
+</div>
+
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+
 const left=document.getElementById("left");
 const middle=document.getElementById("middle");
 const right=document.getElementById("right");
+
 const title=document.getElementById("songTitle");
 const style=document.getElementById("songStyle");
+
 const assistant=document.getElementById("assistantOutput");
 const toast=document.getElementById("toast");
+
 const fileLoad=document.getElementById("fileLoad");
 
 let active=left;
 let currentMood="neutral";
 
+/* aktive textarea */
+
 [left,middle,right].forEach(t=>{
+
 t.addEventListener("focus",()=>active=t);
 t.addEventListener("click",()=>active=t);
+
 });
 
+/* toast */
+
 function msg(t){
+
 toast.textContent=t;
 toast.classList.add("show");
-setTimeout(()=>toast.classList.remove("show"),1500);
+
+setTimeout(()=>{
+toast.classList.remove("show");
+},1500);
+
 }
+
+/* markierter text */
 
 function markedText(){
+
 if(left.selectionStart!==left.selectionEnd){
-return left.value.substring(left.selectionStart,left.selectionEnd).trim();
+
+return left.value.substring(
+left.selectionStart,
+left.selectionEnd
+).trim();
+
 }
+
 return left.value.trim();
+
 }
+
+/* themen erkennen */
 
 function detectTheme(text){
+
 const t=text.toLowerCase();
 
-if(t.includes("kampf")||t.includes("spiel")||t.includes("ball")||t.includes("sieg")||t.includes("rugby")||t.includes("schiedsrichter")||t.includes("mannschaft")) return "sport";
-if(t.includes("liebe")||t.includes("kuss")||t.includes("schatz")||t.includes("herz")||t.includes("liebsten")) return "liebe";
-if(t.includes("regen")||t.includes("kalt")||t.includes("grau")||t.includes("frieren")||t.includes("matsch")) return "regen";
-if(t.includes("nacht")||t.includes("mond")||t.includes("sterne")) return "nacht";
-if(t.includes("meer")||t.includes("strand")||t.includes("wellen")||t.includes("sand")) return "meer";
+if(
+t.includes("kampf")||
+t.includes("spiel")||
+t.includes("ball")||
+t.includes("sieg")||
+t.includes("rugby")||
+t.includes("schiedsrichter")||
+t.includes("mannschaft")
+){
+return "sport";
+}
+
+if(
+t.includes("liebe")||
+t.includes("kuss")||
+t.includes("herz")||
+t.includes("schatz")
+){
+return "liebe";
+}
+
+if(
+t.includes("regen")||
+t.includes("grau")||
+t.includes("matsch")||
+t.includes("kalt")
+){
+return "regen";
+}
+
+if(
+t.includes("nacht")||
+t.includes("mond")||
+t.includes("sterne")
+){
+return "nacht";
+}
+
+if(
+t.includes("meer")||
+t.includes("strand")||
+t.includes("wellen")
+){
+return "meer";
+}
 
 return "allgemein";
+
 }
+
+/* mood */
 
 function moodLine(line){
-if(currentMood==="episch") return line+" — wir geben nicht auf";
-if(currentMood==="melancholisch") return line.replace("Licht","leises Licht");
-if(currentMood==="dreamy") return line+" im schimmernden Licht";
-if(currentMood==="dark synth") return line+" unter kaltem Neon";
-if(currentMood==="uplifting") return line+" und alles wird hell";
-return line;
+
+if(currentMood==="episch"){
+return line+" — wir geben nicht auf";
 }
 
+if(currentMood==="melancholisch"){
+return line+" im leisen Regen";
+}
+
+if(currentMood==="dreamy"){
+return line+" im schimmernden Licht";
+}
+
+if(currentMood==="dark synth"){
+return line+" unter kaltem Neon";
+}
+
+if(currentMood==="uplifting"){
+return line+" und alles wird hell";
+}
+
+return line;
+
+}
+
+/* co writer */
+
 function coWriter(text){
+
 const theme=detectTheme(text);
 
 const bank={
+
 sport:[
 "Wir fallen hin und stehen wieder auf",
 "Der letzte Pfiff trägt unsern Traum",
-"Kein Schritt zurück, wir halten stand",
 "Mit Matsch im Gesicht und Feuer im Blick",
-"Der Sieg riecht nach Regen und kaltem Gras",
-"Wir schenken uns nichts bis der Morgen erwacht"
+"Wir schenken uns nichts bis der Morgen erwacht",
+"Kein Schritt zurück, wir halten stand"
 ],
+
 liebe:[
 "Du wartest dort, wo mein Herz lauter schlägt",
-"Dein Blick macht selbst den Regen warm",
 "Ein Kuss reicht aus und alles wird leicht",
-"Bei dir wird selbst der Sonntag hell",
-"Du bist mein Heimweg nach dem Sturm"
+"Du bist mein Heimweg nach dem Sturm",
+"Dein Blick macht selbst den Regen warm"
 ],
+
 regen:[
 "Der Himmel wäscht den Tag ganz leise",
-"Aus grauen Wolken wächst ein Licht",
-"Wir frieren kurz und lachen später",
 "Der Regen schreibt uns auf die Haut",
-"Im kalten Wind bleibt Wärme übrig"
+"Im kalten Wind bleibt Wärme übrig",
+"Aus grauen Wolken wächst ein Licht"
 ],
+
 nacht:[
 "Die Nacht trägt uns wie ein leises Lied",
 "Im Dunkeln glüht noch unser Mut",
 "Wir finden Licht, wo keines war",
-"Der Mond sieht zu und sagt kein Wort",
-"Bis früh am Morgen hält uns nichts"
+"Der Mond sieht zu und sagt kein Wort"
 ],
+
 meer:[
 "Die Wellen nehmen unser Gestern mit",
-"Im Sand bleibt nur ein warmer Schritt",
 "Der Wind singt leise deinen Namen",
 "Wir laufen barfuß durch das Licht",
 "Das Meer hält fest, was uns bewegt"
 ],
+
 allgemein:[
 "Aus kleinen Zeilen wird ein großer Moment",
-"Wir gehen weiter, auch wenn keiner weiß wohin",
+"Zwischen Zweifel wächst ein Lied",
 "Ein neuer Morgen wartet schon",
-"Was eben schwer war, wird jetzt leicht",
-"Zwischen Zweifel wächst ein Lied"
+"Was eben schwer war, wird jetzt leicht"
 ]
+
 };
 
-let out="🎵 Markierter Text:\n"+text+"\n\n";
-out+="Erkanntes Thema: "+theme+"\n";
-out+="Aktueller Mood: "+currentMood+"\n\n";
+let out="🎵 Markierter Text:\n";
+out+=text+"\n\n";
+
+out+="Erkanntes Thema: ";
+out+=theme+"\n";
+
+out+="Mood: ";
+out+=currentMood+"\n\n";
+
 out+="Vorschläge:\n\n";
 
 bank[theme].forEach(line=>{
-out+="→ "+moodLine(line)+"\n";
+
+out+="→ ";
+out+=moodLine(line);
+out+="\n";
+
 });
 
 out+="\nHook-Idee:\n";
+
 if(theme==="sport"){
-out+="→ Wir schenken uns nichts, wir geben nicht auf\n→ Mit Schlamm auf den Schuhen und Feuer im Lauf\n";
+
+out+="→ Wir schenken uns nichts, wir geben nicht auf\n";
+out+="→ Mit Schlamm auf den Schuhen und Feuer im Lauf\n";
+
 }else{
-out+="→ Bleib noch hier, bis der Morgen beginnt\n→ Weil dieser Moment für uns beide klingt\n";
+
+out+="→ Bleib noch hier bis der Morgen beginnt\n";
+out+="→ Weil dieser Moment für uns beide klingt\n";
+
 }
 
 return out;
+
 }
 
-function sunoFormat(text){
-return text.replace(/\r\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim()+"\n";
-}
+/* struktur buttons */
 
 document.querySelectorAll("[data-tag]").forEach(btn=>{
+
 btn.addEventListener("click",()=>{
+
 const tag=btn.dataset.tag;
-const pos=active.selectionStart || active.value.length;
-active.value=active.value.slice(0,pos)+"\n["+tag+"]\n"+active.value.slice(pos);
+
+const pos=
+active.selectionStart ||
+active.value.length;
+
+active.value=
+active.value.slice(0,pos)
++"\n["+tag+"]\n"
++active.value.slice(pos);
+
 active.focus();
+
 });
+
 });
+
+/* mood buttons */
 
 document.querySelectorAll("[data-mood]").forEach(btn=>{
+
 btn.addEventListener("click",()=>{
+
 currentMood=btn.dataset.mood;
+
 style.value=currentMood;
+
 msg("Mood gesetzt: "+currentMood+" 🌈");
+
 });
+
 });
+
+/* alles */
 
 document.getElementById("btnAll").addEventListener("click",()=>{
-middle.value=sunoFormat(left.value);
-right.value=sunoFormat(left.value);
+
+middle.value=left.value;
+right.value=left.value;
+
 msg("Alles übernommen 🎹");
+
 });
 
+/* split variants */
+
 document.getElementById("btnSplit").addEventListener("click",()=>{
+
 const txt=left.value.trim();
 
 if(!txt){
+
 msg("Bitte zuerst Rohtext eingeben");
+
 return;
+
 }
+
+/* kompakter */
 
 middle.value=
 "[Variante A - kompakter]\n\n"+
 txt
-.replace(/Langsam, aber /gi,"")
 .replace(/wirklich /gi,"")
 .replace(/sehr /gi,"")
 .replace(/ganz /gi,"")
-.replace(/Doch dann /gi,"Dann ")
-.replace(/Die Sonne kommt jetzt hervor und /gi,"Die Sonne ")
 .replace(/\n{3,}/g,"\n\n");
+
+/* emotionaler */
+
+let hook="";
 
 const theme=detectTheme(txt);
 
-let hook="";
 if(theme==="sport"){
+
 hook=
 "[Hook]\n"+
 "Wir schenken uns nichts — bis der letzte Atem fällt\n"+
-"Mit Schlamm auf den Schuhen und Feuer in der Welt\n"+
-"Der letzte Pfiff trägt uns nach Haus";
+"Mit Schlamm auf den Schuhen und Feuer in der Welt";
+
 }else if(theme==="liebe"){
+
 hook=
 "[Hook]\n"+
-"Bleib noch hier, nur einen Augenblick\n"+
+"Bleib noch hier nur einen Augenblick\n"+
 "Dein Herz zieht mich ins Licht zurück";
+
 }else{
+
 hook=
 "[Hook]\n"+
 "Bleib noch hier in dieser Nacht\n"+
 "Bis der Morgen wieder lacht";
+
 }
 
 right.value=
@@ -426,118 +613,164 @@ txt+
 "Der Himmel ist grau doch wir schauen hinauf\n\n"+
 hook;
 
-msg("Split Variants erzeugt 🎛");
+msg("Neue Varianten erzeugt 🎛");
+
 });
 
+/* co writer button */
+
 document.getElementById("btnAssistant").addEventListener("click",()=>{
+
 const text=markedText();
 
 if(!text){
-assistant.textContent="Bitte links Text markieren oder Rohtext einfügen.";
+
+assistant.textContent=
+"Bitte links Text markieren oder Rohtext einfügen.";
+
 return;
+
 }
 
 assistant.textContent=coWriter(text);
+
 assistant.scrollTop=0;
+
 msg("Co-Writer hat zugehört 🎤");
+
 });
 
+/* copy */
+
 document.getElementById("btnCopy").addEventListener("click",async()=>{
+
 const txt=
 "Titel: "+title.value+"\n\n"+
 "Stil: "+style.value+"\n\n"+
 right.value;
 
 try{
+
 await navigator.clipboard.writeText(txt);
-msg("Suno-Ready + Stil kopiert 📋");
+
+msg("Suno-Ready kopiert 📋");
+
 }catch(e){
+
 right.select();
 document.execCommand("copy");
+
 msg("Kopiert 📋");
+
 }
+
 });
 
+/* speichern */
+
 document.getElementById("btnSave").addEventListener("click",()=>{
+
 const data={
+
 title:title.value,
 style:style.value,
+
 left:left.value,
 middle:middle.value,
 right:right.value,
+
 mood:currentMood,
+
 savedAt:new Date().toISOString()
+
 };
 
-const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+const blob=
+new Blob(
+[JSON.stringify(data,null,2)],
+{type:"application/json"}
+);
+
 const a=document.createElement("a");
+
 a.href=URL.createObjectURL(blob);
-a.download=(title.value||"Song")+".songwriter";
+
+a.download=
+(title.value || "Song")
++".songwriter";
+
 a.click();
+
 msg("Song gespeichert 💾");
+
 });
 
+/* laden */
+
 fileLoad.addEventListener("change",e=>{
+
 const file=e.target.files[0];
+
 if(!file)return;
 
 const reader=new FileReader();
+
 reader.onload=()=>{
+
 try{
+
 const data=JSON.parse(reader.result);
-title.value=data.title||"";
-style.value=data.style||"";
-left.value=data.left||"";
-middle.value=data.middle||"";
-right.value=data.right||"";
-currentMood=data.mood||"neutral";
+
+title.value=data.title || "";
+style.value=data.style || "";
+
+left.value=data.left || "";
+middle.value=data.middle || "";
+right.value=data.right || "";
+
+currentMood=data.mood || "neutral";
+
 msg("Song geladen 📂");
+
 }catch(err){
+
 msg("Datei konnte nicht geladen werden");
+
 }
+
 };
+
 reader.readAsText(file);
+
 });
 
+/* löschen */
+
 document.getElementById("clearLeft").addEventListener("click",()=>{
-if(confirm("Rohtext wirklich löschen?")){
+
 left.value="";
+
 msg("Rohtext gelöscht");
-}
+
 });
 
 document.getElementById("clearA").addEventListener("click",()=>{
-if(confirm("Variante A wirklich löschen?")){
+
 middle.value="";
+
 msg("Variante A gelöscht");
-}
+
 });
 
 document.getElementById("clearB").addEventListener("click",()=>{
-if(confirm("Variante B wirklich löschen?")){
+
 right.value="";
+
 msg("Variante B gelöscht");
-}
-});
-  document.getElementById("clearAll").addEventListener("click", function(){
-
-  document.getElementById("songTitle").value = "";
-  document.getElementById("songStyle").value = "";
-
-  document.getElementById("left").value = "";
-  document.getElementById("middle").value = "";
-  document.getElementById("right").value = "";
-
-  document.getElementById("assistantOutput").textContent =
-  "Markiere links eine Zeile oder mehrere Zeilen und drücke „Co-Writer“.";
-
-  currentMood = "neutral";
-
-  msg("Alles gelöscht 💥");
 
 });
-</script>
-/* Alles löschen */
+
+/* alles löschen */
 
 document.getElementById("clearAll").addEventListener("click",()=>{
 
@@ -556,5 +789,8 @@ currentMood="neutral";
 msg("Studio geleert 💥");
 
 });
+
+</script>
+
 </body>
 </html>
